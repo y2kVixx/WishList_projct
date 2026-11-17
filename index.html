@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Minha Lista de Desejos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&display=swap">
+<style>
+:root {
+  --fundo: #050505;
+  --painel: #333;
+  --borda: #5c4e28;
+  --texto: #f5efe2;
+  --suave: #a9b0a0;
+  --ouro: #e0bb55;
+  --erro: #ff8a80;
+  --destaque: rgba(200, 200, 200, .3);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--fundo);
+  color: var(--texto);
+  font: 400 16px/1.4 Inter, system-ui, sans-serif;
+}
+main { max-width: 640px; margin: 0 auto; padding: 44px 16px 72px; }
+h1 { font: 700 clamp(32px, 8vw, 44px)/1.1 Fraunces, Georgia, serif; margin: 0 0 6px; }
+h2 { font: 700 24px/1.2 Fraunces, Georgia, serif; margin: 34px 0 14px; }
+h2 small { font: 400 16px Fraunces, Georgia, serif; color: var(--suave); }
+h3 { font: 700 22px/1.2 Fraunces, Georgia, serif; margin: 0; }
+.subtitulo { color: var(--suave); margin: 0 0 18px; }
+.suave { color: var(--suave); }
+.ouro { color: var(--ouro); font-weight: 700; }
+.erro { color: var(--erro); font-weight: 700; }
+.botoes { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+.botao {
+  font: 600 14px Inter, system-ui, sans-serif;
+  background: transparent;
+  color: var(--texto);
+  border: 1.5px solid var(--borda);
+  border-radius: 999px;
+  padding: 7px 14px;
+  cursor: pointer;
+}
+.botao.principal { background: var(--ouro); border-color: var(--ouro); color: #17140c; }
+:focus-visible { outline: 3px solid var(--ouro); outline-offset: 2px; }
+.painel {
+  background: var(--painel);
+  border: 1.5px solid var(--borda);
+  border-radius: 14px;
+  padding: 22px 24px;
+}
+.linha { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+.valor { display: flex; align-items: baseline; gap: 8px; font: 600 18px Fraunces, Georgia, serif; color: var(--ouro); }
+#resgate, .valor-fixo { font: 700 30px Fraunces, Georgia, serif; color: var(--texto); }
+#resgate {
+  width: 150px;
+  text-align: right;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid var(--borda);
+  padding: 0 0 2px;
+}
+.barra { height: 10px; border-radius: 6px; background: rgba(128, 128, 128, .3); margin: 16px 0 14px; overflow: hidden; }
+.barra i { display: block; height: 100%; background: var(--ouro); border-radius: 6px; }
+.barra i.estourou { background: var(--erro); }
+.nota {
+  display: block;
+  width: 100%;
+  margin: 22px 0 0;
+  padding: 4px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--destaque);
+  color: var(--texto);
+  font: 700 21px/1.25 Inter, system-ui, sans-serif;
+}
+.itens { display: flex; flex-wrap: wrap; gap: 14px; }
+.item { width: 170px; border-radius: 10px; overflow: hidden; background: #f5efe2; color: #1d1b16; }
+.foto {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1 / 1.05;
+  background: #fff;
+  color: #777;
+}
+.item img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.texto { padding: 10px 12px; }
+.nome { font-size: 14px; }
+.preco { font: 700 20px Fraunces, Georgia, serif; }
+.item input, .quadro input[type=number] {
+  width: 100%;
+  margin-top: 4px;
+  padding: 4px 6px;
+  font: inherit;
+  font-size: 14px;
+  background: #fff;
+  color: #1d1b16;
+  border: 1px solid #cdbf9a;
+  border-radius: 6px;
+}
+.item .botao { margin-top: 8px; color: #1d1b16; }
+.colecao { margin-bottom: 18px; padding: 18px 20px; }
+.nome-colecao {
+  flex: 1 1 200px;
+  min-width: 0;
+  font: 700 22px/1.2 Fraunces, Georgia, serif;
+  background: transparent;
+  color: var(--texto);
+  border: 0;
+  border-bottom: 2px solid var(--borda);
+}
+.grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 14px 12px; margin-top: 14px; }
+.quadro { position: relative; text-align: center; }
+.capa {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1 / 1;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1.5px solid var(--borda);
+  color: var(--suave);
+  font-size: 12px;
+  background: rgba(128, 128, 128, .15);
+}
+.capa img { width: 100%; height: 100%; object-fit: cover; display: block; }
+body[data-editando="1"] .capa, body[data-editando="1"] .foto { cursor: pointer; }
+.preco-capa { margin-top: 4px; font-size: 14px; color: var(--suave); }
+.fechar {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 50%;
+  background: #17140c;
+  color: #f5efe2;
+  line-height: 1;
+  cursor: pointer;
+}
+.mais {
+  aspect-ratio: 1 / 1;
+  border: 1.5px dashed var(--borda);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ouro);
+  font-size: 26px;
+  cursor: pointer;
+}
+.vazio { margin-top: 28px; color: var(--suave); }
+#toast {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  border-radius: 10px;
+  background: var(--texto);
+  color: var(--fundo);
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity .2s;
+  pointer-events: none;
+}
+#toast.visivel { opacity: 1; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Minha Lista de Desejos</h1>
+  <p class="subtitulo">o que eu quero comprar com o resgate — e quanto vai sobrar</p>
+  <div class="botoes" id="botoes"></div>
+  <div id="app"></div>
+</main>
+<div id="toast" role="status"></div>
+<input type="file" id="arquivo" accept=".json,application/json" hidden>
+<script type="application/json" id="dados"></script>
+<script>
+const CHAVE = "lista-de-desejos";
+const NOTA_PADRAO = "Lembrando que é a média de preço, NÃO o preço exato";
+const $ = (seletor) => document.querySelector(seletor);
+
+let estado = { budget: 0, note: NOTA_PADRAO, singleItems: [], collections: [] };
+let somenteLeitura = false;
+let editando = false;
+let apagando = null;
+
+const novoId = () => Math.random().toString(36).slice(2, 9);
+const itemVazio = () => ({ id: novoId(), name: "", price: 0, image: "" });
+const real = (n) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(n) || 0);
+const somar = (lista) => lista.reduce((total, i) => total + i.price, 0);
+const escapar = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+
+function avisar(texto) {
+  const el = $("#toast");
+  el.textContent = texto;
+  el.classList.add("visivel");
+  clearTimeout(avisar.timer);
+  avisar.timer = setTimeout(() => el.classList.remove("visivel"), 2600);
+}
+
+function normalizar(d) {
+  d = d || {};
+  const item = (i) => ({
+    id: i.id || novoId(),
+    name: String(i.name || ""),
+    price: Number(i.price) || 0,
+    image: typeof i.image === "string" && i.image.startsWith("data:image/") ? i.image : ""
+  });
+  return {
+    budget: Math.max(0, Number(d.budget) || 0),
+    note: d.note != null ? String(d.note) : NOTA_PADRAO,
+    singleItems: (d.singleItems || []).map(item),
+    collections: (d.collections || []).map((c) => ({
+      id: c.id || novoId(),
+      name: String(c.name || "Coleção"),
+      items: (c.items || []).map(item)
+    }))
+  };
+}
+
+function salvar() {
+  if (somenteLeitura) return;
+  try { localStorage.setItem(CHAVE, JSON.stringify(estado)); } catch {}
+}
+
+function iniciar() {
+  const embutido = $("#dados").textContent.trim();
+  if (embutido) {
+    try {
+      estado = normalizar(JSON.parse(embutido));
+      somenteLeitura = document.body.dataset.leitura === "1";
+      return;
+    } catch {}
+  }
+  try {
+    const salvo = localStorage.getItem(CHAVE);
+    if (salvo) estado = normalizar(JSON.parse(salvo));
+  } catch {}
+  editando = !estado.singleItems.length && !estado.collections.length;
+}
+
+function cartaoItem(i) {
+  const foto = i.image ? `<img src="${i.image}" alt="">` : "<span>Sem foto</span>";
+  const upload = editando ? '<input type="file" accept="image/*" data-campo="image" hidden>' : "";
+  const rodape = editando
+    ? `<input type="text" data-campo="name" placeholder="Nome do item" value="${escapar(i.name)}">
+       <input type="number" step="0.01" min="0" data-campo="price" placeholder="Preço" value="${i.price || ""}">
+       <button class="botao" data-acao="remover">Remover</button>`
+    : `<div class="nome">${escapar(i.name)}</div><div class="preco">${real(i.price)}</div>`;
+  return `<article class="item" data-item="${i.id}">
+    <label class="foto">${foto}${upload}</label>
+    <div class="texto">${rodape}</div>
+  </article>`;
+}
+
+function quadroVolume(i) {
+  const foto = i.image ? `<img src="${i.image}" alt="${escapar(i.name)}">` : "<span>Capa</span>";
+  const upload = editando ? '<input type="file" accept="image/*" data-campo="image" hidden>' : "";
+  const rodape = editando
+    ? `<input type="number" step="0.01" min="0" data-campo="price" placeholder="R$" aria-label="Preço" value="${i.price || ""}">
+       <button class="fechar" data-acao="remover" aria-label="Remover">×</button>`
+    : `<div class="preco-capa">${real(i.price)}</div>`;
+  return `<div class="quadro" data-item="${i.id}"><label class="capa">${foto}${upload}</label>${rodape}</div>`;
+}
+
+function blocoColecao(c) {
+  const qtd = `${c.items.length} ${c.items.length === 1 ? "item" : "itens"}`;
+  const titulo = editando
+    ? `<input class="nome-colecao" data-campo="colecao" value="${escapar(c.name)}" aria-label="Nome da coleção">`
+    : `<h3>${escapar(c.name)}</h3>`;
+  const novo = editando ? '<button class="mais" data-acao="novo-volume" aria-label="Adicionar volume">+</button>' : "";
+  const apagar = editando
+    ? `<button class="botao" style="margin-top:14px" data-acao="apagar-colecao">${apagando === c.id ? "Confirmar exclusão" : "Apagar coleção"}</button>`
+    : "";
+  return `<section class="painel colecao" data-colecao="${c.id}">
+    <div class="linha" style="align-items:center">
+      ${titulo}
+      <span><span class="ouro">${real(somar(c.items))}</span> <span class="suave" style="margin-left:8px">${qtd}</span></span>
+    </div>
+    <div class="grade">${c.items.map(quadroVolume).join("")}${novo}</div>
+    ${apagar}
+  </section>`;
+}
+
+function desenhar() {
+  document.body.dataset.editando = editando ? "1" : "0";
+
+  const todos = estado.singleItems.concat(...estado.collections.map((c) => c.items));
+  const planejado = somar(todos);
+  const sobra = estado.budget - planejado;
+  const progresso = estado.budget ? Math.min(100, (planejado / estado.budget) * 100) : 0;
+
+  $("#botoes").innerHTML = somenteLeitura ? "" : `
+    <button class="botao principal" data-acao="editar">${editando ? "Concluir" : "Editar"}</button>
+    ${editando ? '<button class="botao" data-acao="novo-item">Adicionar item</button><button class="botao" data-acao="nova-colecao">Nova coleção</button>' : ""}
+    <button class="botao" data-acao="exportar">Exportar .json</button>
+    <button class="botao" data-acao="importar">Importar .json</button>
+    <button class="botao" data-acao="leitura">Baixar versão só leitura</button>`;
+
+  const campoResgate = somenteLeitura
+    ? `<span class="valor-fixo">${estado.budget}</span>`
+    : `<input id="resgate" type="number" min="0" step="0.01" value="${estado.budget || ""}" aria-label="Valor do resgate">`;
+
+  const resumo = estado.budget
+    ? `<span class="${sobra >= 0 ? "ouro" : "erro"}">${sobra >= 0 ? "guardar " : "faltam "}${real(Math.abs(sobra))}</span>`
+    : "";
+
+  const nota = editando
+    ? `<input class="nota" data-campo="nota" value="${escapar(estado.note)}" placeholder="Aviso (opcional)" aria-label="Aviso">`
+    : (estado.note ? `<div class="nota">${escapar(estado.note)}</div>` : "");
+
+  const painel = `<div class="painel">
+    <div class="linha"><span class="suave">valor do resgate</span><span class="valor">R$ ${campoResgate}</span></div>
+    <div class="barra"><i class="${sobra < 0 ? "estourou" : ""}" style="width:${progresso}%"></i></div>
+    <div class="linha"><span class="suave">planejado: ${real(planejado)}</span>${resumo}</div>
+  </div>${nota}`;
+
+  const avulsos = estado.singleItems.length
+    ? `<h2>Itens <small>(${estado.singleItems.length})</small></h2><div class="itens">${estado.singleItems.map(cartaoItem).join("")}</div>`
+    : "";
+
+  const colecoes = estado.collections.length
+    ? `<h2>Coleções <small>(${estado.collections.length})</small></h2>${estado.collections.map(blocoColecao).join("")}`
+    : "";
+
+  const vazio = !avulsos && !colecoes
+    ? '<p class="vazio">Ainda não tem nada na lista. Use “Adicionar item” para um item avulso ou “Nova coleção” para agrupar volumes.</p>'
+    : "";
+
+  $("#app").innerHTML = painel + avulsos + colecoes + vazio;
+}
+
+function reduzirImagem(arquivo) {
+  return new Promise((resolve, reject) => {
+    const leitor = new FileReader();
+    leitor.onerror = reject;
+    leitor.onload = () => {
+      const img = new Image();
+      img.onerror = reject;
+      img.onload = () => {
+        const escala = Math.min(1, 420 / Math.max(img.width, img.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width * escala;
+        canvas.height = img.height * escala;
+        canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL("image/jpeg", 0.82));
+      };
+      img.src = leitor.result;
+    };
+    leitor.readAsDataURL(arquivo);
+  });
+}
+
+function baixar(nome, texto, tipo) {
+  const url = URL.createObjectURL(new Blob([texto], { type: tipo }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = nome;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function importar(texto) {
+  try {
+    estado = normalizar(JSON.parse(texto));
+    salvar();
+    desenhar();
+    avisar("Lista importada");
+  } catch {
+    avisar("Esse arquivo não parece um JSON válido");
+  }
+}
+
+function localizar(el) {
+  const blocoColecao = el.closest("[data-colecao]");
+  const colecao = blocoColecao && estado.collections.find((c) => c.id === blocoColecao.dataset.colecao);
+  const lista = colecao ? colecao.items : estado.singleItems;
+  const blocoItem = el.closest("[data-item]");
+  const item = blocoItem && lista.find((i) => i.id === blocoItem.dataset.item);
+  return { colecao, lista, item };
+}
+
+document.addEventListener("click", (e) => {
+  const alvo = e.target.closest("[data-acao]");
+  if (!alvo || somenteLeitura) return;
+
+  const acao = alvo.dataset.acao;
+  const { colecao, lista, item } = localizar(alvo);
+  const data = new Date().toISOString().slice(0, 10);
+
+  if (acao !== "apagar-colecao") apagando = null;
+
+  if (acao === "exportar") return baixar(`lista-de-desejos-${data}.json`, JSON.stringify(estado, null, 1), "application/json");
+  if (acao === "importar") return $("#arquivo").click();
+  if (acao === "leitura") {
+    const copia = document.documentElement.cloneNode(true);
+    copia.querySelector("#dados").textContent = JSON.stringify(estado).replace(/</g, "\\u003c");
+    copia.querySelector("body").setAttribute("data-leitura", "1");
+    return baixar("lista-de-desejos-leitura.html", "<!DOCTYPE html>\n" + copia.outerHTML, "text/html");
+  }
+
+  if (acao === "editar") editando = !editando;
+  else if (acao === "novo-item") estado.singleItems.push(itemVazio());
+  else if (acao === "nova-colecao") estado.collections.push({ id: novoId(), name: "Nova coleção", items: [] });
+  else if (acao === "novo-volume" && colecao) colecao.items.push(itemVazio());
+  else if (acao === "remover" && item) lista.splice(lista.indexOf(item), 1);
+  else if (acao === "apagar-colecao" && colecao) {
+    if (apagando !== colecao.id) {
+      apagando = colecao.id;
+      return desenhar();
+    }
+    estado.collections = estado.collections.filter((c) => c !== colecao);
+    apagando = null;
+  }
+
+  salvar();
+  desenhar();
+});
+
+document.addEventListener("change", async (e) => {
+  const campo = e.target.dataset.campo;
+
+  if (e.target.id === "arquivo") {
+    const arquivo = e.target.files[0];
+    e.target.value = "";
+    if (arquivo) importar(await arquivo.text());
+    return;
+  }
+  if (somenteLeitura) return;
+  if (e.target.id === "resgate") {
+    estado.budget = Math.max(0, Number(e.target.value) || 0);
+    salvar();
+    return desenhar();
+  }
+  if (!campo) return;
+
+  const { colecao, item } = localizar(e.target);
+  try {
+    if (campo === "nota") estado.note = e.target.value;
+    else if (campo === "colecao" && colecao) colecao.name = e.target.value;
+    else if (campo === "name" && item) item.name = e.target.value;
+    else if (campo === "price" && item) item.price = Math.max(0, Number(e.target.value) || 0);
+    else if (campo === "image" && item && e.target.files[0]) item.image = await reduzirImagem(e.target.files[0]);
+  } catch {
+    return avisar("Não consegui ler essa imagem");
+  }
+  salvar();
+  desenhar();
+});
+
+iniciar();
+desenhar();
+</script>
+</body>
+</html>
